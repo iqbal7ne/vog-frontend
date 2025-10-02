@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SiteHeader } from "@/components/site-header";
+import { AppSidebar } from "@/components/app-sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +27,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem={false}
+          themes={["light", "dark", "green", "violet"]} // ✅ kasih tahu next-themes kalau ada theme lain
+          disableTransitionOnChange
+        >
+          <div className="[--header-height:calc(--spacing(14))]">
+            <SidebarProvider className="flex flex-col">
+              <SiteHeader />
+              <div className="flex flex-1">
+                <AppSidebar />
+                <SidebarInset>{children}</SidebarInset>
+              </div>
+            </SidebarProvider>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
