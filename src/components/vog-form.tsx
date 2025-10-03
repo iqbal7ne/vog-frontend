@@ -9,10 +9,17 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Form } from "./ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
 import { Textarea } from "./ui/textarea";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { vogSchema } from "@/schema/schema";
@@ -20,25 +27,44 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { vogForm } from "@/interface/vog";
 
 export function VogForm() {
-  const { area } = useParams<{ area: string | string[] }>();
+  const searchParams = useSearchParams();
+  const allowedAreas = [
+    "CVT NC",
+    "CVT Press",
+    "Body Press",
+    "welding line a",
+    "welding line b",
+    "welding line c",
+    "welding line d",
+    "SSW",
+    "Logistik",
+    "Receiving",
+    "Delivery",
+  ] as const;
 
-  const decodedArea = Array.isArray(area)
-    ? decodeURIComponent(area[0])
-    : decodeURIComponent(area ?? "");
+  type AreaType = (typeof allowedAreas)[number];
+
+  const areaParam = searchParams.get("area");
+  const area: AreaType | undefined = allowedAreas.includes(
+    areaParam as AreaType
+  )
+    ? (areaParam as AreaType)
+    : undefined;
 
   // react hook form
 
   const form = useForm<vogForm>({
     resolver: zodResolver(vogSchema),
     defaultValues: {
-      area: decodedArea,
+      area: area,
       NIK: "",
       problem: "",
     },
+    mode: "onChange",
   });
 
   const onSubmit = (data: vogForm) => {
-    alert(data);
+    alert(JSON.stringify(data, null, 2));
   };
   return (
     <Card>
@@ -50,37 +76,52 @@ export function VogForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
-          <div className="grid gap-6">
-            <div className="grid gap-3">
-              <Label htmlFor="area">Area</Label>
-              <Input
-                id="area"
-                type="text"
-                placeholder="m@example.com"
-                value={area}
-                disabled
-                required
-              />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="NIK">NIK</Label>
-              <Input
-                id="NIK"
-                type="text"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="problem">Informasi</Label>
-              <Textarea />
-            </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Area</FormLabel>
+                  <FormControl>
+                    <Input placeholder="area" {...field} disabled />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="NIK"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>NIK</FormLabel>
+                  <FormControl>
+                    <Input placeholder="NIK" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="problem"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Problem</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="tell us the problem" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button type="submit" className="w-full">
               Kirim
             </Button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
