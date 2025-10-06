@@ -1,19 +1,19 @@
 import { z } from "zod";
 import axios from "axios";
 
-const allowedAreas = [
-  "CVT NC",
-  "CVT Press",
-  "Body Press",
-  "welding line a",
-  "welding line b",
-  "welding line c",
-  "welding line d",
-  "SSW",
-  "Logistik",
-  "Receiving",
-  "Delivery",
-] as const;
+// const allowedAreas = [
+//   "CVT NC",
+//   "CVT Press",
+//   "Body Press",
+//   "welding line a",
+//   "welding line b",
+//   "welding line c",
+//   "welding line d",
+//   "SSW",
+//   "Logistik",
+//   "Receiving",
+//   "Delivery",
+// ] as const;
 
 async function getUsers(nik: string) {
   try {
@@ -37,14 +37,7 @@ async function validateNIK(nik: string) {
 }
 
 export const vogSchema = z.object({
-  area: z.enum(allowedAreas),
-  NIK: z
-    .string()
-    .min(7)
-    .max(7)
-    .regex(/^\d+$/, "NIK hanya boleh angka")
-    .refine(async (val) => await validateNIK(val), {
-      message: "NIK tidak terdaftar",
-    }),
-  problem: z.string(),
+  area: z.string().min(1, "Area wajib diisi, silahkan scan ulang"),
+  NIK: z.string().min(7).max(7).regex(/^\d+$/, "NIK hanya boleh angka"),
+  problem: z.string().min(1, "problem harus terisi"),
 });
