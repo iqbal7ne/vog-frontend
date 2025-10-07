@@ -41,46 +41,57 @@ export function VogForm() {
 
   const [isCheckingArea, setIsCheckingArea] = useState<boolean>(false);
   const [isAreaValid, setIsAreaValid] = useState<boolean | null>();
+  //state tambahan untuk menyimpan nama area berdasarkan section_id
+  const [areaName, setAreaName] = useState<string>("");
+  //state untuk menyimpan status success kirim ke BE
+  const [status, setStatus] = useState<string>("");
 
   // react hook form initialization
   const form = useForm<vogForm>({
     resolver: zodResolver(vogSchema),
     defaultValues: {
-      area: areaParam,
+      SECTION_ID: areaParam,
       NIK: "",
-      problem: "",
+      PROBLEM: "",
     },
     mode: "onChange",
   });
   const { setError, clearErrors, watch } = form; //di destructuring biar tidak menuliskan form.setError dan seterusnya
   const nikValue = watch("NIK");
-  const areaValue = watch("area");
+  const areaValue = watch("SECTION_ID");
 
   // function untuk melakukan pengecheckan validasi AREA & NIK
-  async function checkArea(area: string) {
-    console.log("mulai cek area", area);
+  async function checkArea(SECTION_ID: string) {
+    console.log("mulai cek area", SECTION_ID);
     try {
       const res = await axios.get(
-        `http://192.168.100.75:8002/api/area/${area}`
+        `http://192.168.100.75:8002/api/app/vog/area/${SECTION_ID}`
       );
       const data = res.data.data;
       console.log("data return area", data);
       if (!data) {
         setIsAreaValid(false);
-        setError("area", { message: "area tidak ditemukan" });
+        setAreaName("");
+        setError("SECTION_ID", {
+          message: "area tidak ditemukan, silahkan scan ulang",
+        });
       } else {
         setIsAreaValid(true);
-        clearErrors("area");
+        setAreaName(data.SECTION_NAME || "");
+        clearErrors("SECTION_ID");
       }
     } catch (err) {
-      setError("area", { message: "error validasi area" });
+      console.log(err);
+      setError("SECTION_ID", { message: "error validasi area" });
     }
   }
 
   async function checkNIK(NIK: string) {
     console.log("mulai cek NIK", NIK);
     try {
-      const res = await axios.get(`http://192.168.100.75:8002/api/user/${NIK}`);
+      const res = await axios.get(
+        `http://192.168.100.75:8002/api/app/vog/user/${NIK}`
+      );
       const data = res.data.data;
       console.log("data return NIK", data);
       if (!data) {
@@ -135,8 +146,29 @@ export function VogForm() {
   }, [areaValue]);
 
   // handle submit nya menggunakan function ini (rekomendasi dari RHF untuk membuat function submit nya)
-  const onSubmit = (data: vogForm) => {
-    alert(JSON.stringify(data, null, 2));
+  const onSubmit = async (data: vogForm) => {
+    // Pastikan validasi async sudah selesai
+    if (isCheckingNIK || isCheckingArea) {
+      alert("Tunggu validasi selesai dulu...");
+      return;
+    }
+
+    if (!isNIKValid || !isAreaValid) {
+      alert("NIK atau AREA tidak valid!");
+      return;
+    }
+
+    const isValid = form.trigger();
+    if (!isValid) {
+      alert("Masih ada error pada form!");
+      return;
+    }
+    const respon = await axios.post(
+      `http://192.168.100.75:8002/api/app/vog/problem`,
+      data
+    );
+    setStatus("submit success");
+
     form.reset(); //reset form
   };
   return (
@@ -153,15 +185,18 @@ export function VogForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="area"
+              name="SECTION_ID"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Area</FormLabel>
                   {/* gunakan div ini agar spinner ketika validasi ada di samping input field */}
                   <div className="flex gap-1 items-center">
                     <FormControl>
-                      <Input placeholder="area" {...field} disabled />
+                      <div className="flex">
+                        <Input placeholder="area" {...field} hidden />
+                      </div>
                     </FormControl>
+                    <Input placeholder="" value={areaName} disabled />
                     {isCheckingArea ? (
                       <Spinner />
                     ) : isAreaValid === false ? (
@@ -199,7 +234,7 @@ export function VogForm() {
             />
             <FormField
               control={form.control}
-              name="problem"
+              name="PROBLEM"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Problem</FormLabel>
@@ -210,9 +245,19 @@ export function VogForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Kirim
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={
+                form.formState.isSubmitting ||
+                !form.formState.isValid ||
+                isCheckingArea ||
+                isCheckingNIK
+              }
+            >
+              {form.formState.isSubmitting ? "Mengirim..." : "Kirim"}
             </Button>
+            {status && <p className="text-green-400 italic">{status}</p>}
           </form>
         </Form>
       </CardContent>

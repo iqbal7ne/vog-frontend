@@ -37,7 +37,7 @@ async function validateNIK(nik: string) {
 }
 
 export const vogSchema = z.object({
-  area: z.string().min(1, "Area wajib diisi, silahkan scan ulang"),
+  SECTION_ID: z.string().min(1, "Area wajib diisi, silahkan scan ulang"),
   NIK: z.string().min(7).max(7).regex(/^\d+$/, "NIK hanya boleh angka"),
-  problem: z.string().min(1, "problem harus terisi"),
+  PROBLEM: z.string().min(1, "problem harus terisi"),
 });
