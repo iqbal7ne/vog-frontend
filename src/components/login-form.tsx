@@ -23,6 +23,8 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { Popover } from "./ui/popover";
+import { PopoverForgotPassword } from "./forgot-password";
 
 export function LoginForm({
   className,
@@ -103,14 +105,15 @@ export function LoginForm({
               />
             </Field>
             <Field>
-              <div className="flex items-center">
+              <div className="flex items-center justify-between">
                 <FieldLabel htmlFor="password">Password</FieldLabel>
-                <a
+                <PopoverForgotPassword />
+                {/* <a
                   href="#"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
-                </a>
+                </a> */}
               </div>
               <Input
                 id="password"

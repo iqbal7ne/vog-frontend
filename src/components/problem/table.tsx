@@ -18,7 +18,11 @@ import {
 import { EditProblemModal } from "./edit-modal";
 import { useState } from "react";
 
-export function ProblemTable({ data }: { data: Problem[] }) {
+type Props = {
+  data: Problem[];
+  token: string;
+};
+export function ProblemTable({ data, token }: Props) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Problem | null>(null);
 
@@ -33,7 +37,12 @@ export function ProblemTable({ data }: { data: Problem[] }) {
 
   return (
     <>
-      <EditProblemModal open={open} onOpenChange={setOpen} problem={selected} />
+      <EditProblemModal
+        open={open}
+        onOpenChange={setOpen}
+        problem={selected}
+        token={token}
+      />
 
       <div className="rounded-md border">
         <Table>

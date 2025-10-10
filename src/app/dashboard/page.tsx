@@ -34,7 +34,7 @@ export default function DashboardPage() {
             <CardContent className="text-center">My Post</CardContent>
           </Card>
         </Link>
-        <Link href="/dashboard/my-post">
+        <Link href="/dashboard/section-post">
           <Card className="bg-gradient-to-t from-primary from-0% via-background via-20% hover:border-ring border-2">
             <CardContent className="text-center">Section Post</CardContent>
           </Card>
