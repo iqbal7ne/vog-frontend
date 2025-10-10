@@ -4,8 +4,21 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -22,6 +35,8 @@ export function LoginForm({
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("NIK:", NIK);
+
     e.preventDefault();
     setErrorMessage("");
     setLoading(true);
@@ -67,64 +82,52 @@ export function LoginForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn("flex flex-col gap-6", className)}
-      {...props}
-    >
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-4xl font-bold">Login to G-TIM APPS account</h1>
-        <p className="text-muted-foreground text-xl text-balance">
-          Enter your employee id below to login to your account
-        </p>
-      </div>
-
-      <div className="grid gap-6 w-full max-w-xl mx-auto">
-        <div className="grid gap-3">
-          <Label className="text-xl" htmlFor="NIK">
-            NIK
-          </Label>
-          <Input
-            id="NIK"
-            type="text"
-            placeholder="EmployeeID"
-            value={NIK}
-            onChange={(e) => setNIK(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <div className="grid gap-3">
-          <div className="flex items-center">
-            <Label className="text-xl" htmlFor="password">
-              Password
-            </Label>
-          </div>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Password"
-            value={PASSWORD}
-            onChange={(e) => setPASSWORD(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <a
-          href="#"
-          className="ml-auto text-xl underline-offset-4 hover:underline"
-        >
-          Forgot your password?
-        </a>
-
-        {error && <p className="text-red-500 text-center">{error}</p>}
-
-        <Button type="submit" className="bg-blue-600 w-full" disabled={loading}>
-          {loading ? "Logging In..." : "Login"}
-        </Button>
-      </div>
-    </form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Login to your account</CardTitle>
+        <CardDescription>
+          Enter your email below to login to your account
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="NIK">NIK</FieldLabel>
+              <Input
+                id="NIK"
+                type="text"
+                placeholder="12XXXXX"
+                onChange={(e) => setNIK(e.target.value)}
+                required
+              />
+            </Field>
+            <Field>
+              <div className="flex items-center">
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <a
+                  href="#"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </a>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                onChange={(e) => setPASSWORD(e.target.value)}
+                required
+              />
+            </Field>
+            <Field>
+              <Button type="submit">Login</Button>
+              <FieldDescription className="text-center">
+                Don&apos;t have an account? <a href="#">ask to admin</a>
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

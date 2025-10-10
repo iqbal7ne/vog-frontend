@@ -1,8 +1,11 @@
+import { LoginForm } from "@/components/login-form";
+
 export default function HomePage() {
   return (
-    <main className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-3xl font-bold mb-2">Halaman Publik</h1>
-      <p>Semua orang bisa mengakses halaman ini tanpa login.</p>
-    </main>
+    <div className="flex min-h-full w-full items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-md">
+        <LoginForm />
+      </div>
+    </div>
   );
 }
