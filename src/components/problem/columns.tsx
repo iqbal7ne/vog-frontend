@@ -35,13 +35,9 @@ export const columns = (
     header: "Status",
     cell: ({ row }) => {
       const status = row.original.STATUS;
-      return status ? (
-        <Badge variant={"destructive"} className="">
-          OPEN
-        </Badge>
-      ) : (
-        <Badge variant="default" className="">
-          CLOSE
+      return (
+        <Badge variant={status ? "destructive" : "default"} className="">
+          {status ? "OPEN" : "CLOSE"}
         </Badge>
       );
     },

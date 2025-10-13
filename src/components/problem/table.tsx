@@ -6,7 +6,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { columns } from "./columns";
-import { Employee, Problem } from "@/interface/vog";
+import { Problem } from "@/interface/vog";
 import {
   Table,
   TableBody,
@@ -17,24 +17,31 @@ import {
 } from "@/components/ui/table";
 import { EditProblemModal } from "./edit-modal";
 import { useState } from "react";
+import { success } from "zod";
 
-type Props = {
+interface ProblemTableProps {
   data: Problem[];
-  token: string;
-};
-export function ProblemTable({ data, token }: Props) {
+  token?: string;
+}
+export function ProblemTable({ data, token }: ProblemTableProps) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Problem | null>(null);
 
   const table = useReactTable({
     data,
-    columns: columns((emp) => {
-      setSelected(emp);
+    columns: columns((dataProblem) => {
+      setSelected(dataProblem);
       setOpen(true);
     }),
     getCoreRowModel: getCoreRowModel(),
   });
 
+  // const handleClose = (success?: boolean) => {
+  //   setOpen(false);
+  //   if (success) {
+  //     refetch(); //hanya refetch kalau edit berhasil
+  //   }
+  // };
   return (
     <>
       <EditProblemModal
@@ -60,16 +67,31 @@ export function ProblemTable({ data, token }: Props) {
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={table.getAllColumns().length}
+                  className="text-center py-4 text-muted-foreground"
+                >
+                  No data found
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

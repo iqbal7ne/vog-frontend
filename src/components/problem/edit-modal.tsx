@@ -14,12 +14,14 @@ import { Employee, Problem } from "@/interface/vog";
 import { useEffect, useState } from "react";
 import { Textarea } from "../ui/textarea";
 import axios from "axios";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
-type Props = {
+type EditProblemModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   problem: Problem | null;
-  token: string;
+  token?: string;
 };
 
 export function EditProblemModal({
@@ -27,28 +29,49 @@ export function EditProblemModal({
   onOpenChange,
   problem,
   token,
-}: Props) {
+}: EditProblemModalProps) {
   const [formData, setFormData] = useState<Partial<Problem>>({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (problem) setFormData(problem);
+    if (problem) {
+      setFormData(problem);
+    }
   }, [problem]);
 
   const handleSave = async () => {
     console.log("Saving data:", formData);
     console.log("ini token di edit model: ", token);
-
+    setLoading(true);
     // Implement the logic to save the data to the server
-    const res = await axios.post(
-      "http://localhost:8002/api/app/vog/response",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      await axios.post(
+        "http://localhost:8002/api/app/vog/response", // api url nya
+        // formData, //body data nya kalau mau kirim semua
+        // dan di bawah ini kalau mau kirimnya tidak semua
+        {
+          RESPONSE: formData.RESPONSE,
+          PROBLEM_ID: formData.PROBLEM_ID,
         },
-      }
-    );
-    onOpenChange(false);
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, //token nya
+          },
+        }
+      );
+      toast.success("Response submitted successfully");
+      queryClient.invalidateQueries({ queryKey: ["problems"] }); // 🔥 Auto refetch global
+      onOpenChange(false); //jika berhasil, tutup modal dengan memberikan nilai false
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save data", {
+        description: "An error occurred",
+      });
+      onOpenChange(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -82,7 +105,9 @@ export function EditProblemModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Submit</Button>
+          <Button onClick={handleSave} disabled={loading}>
+            {loading ? "Saving..." : "Submit"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
