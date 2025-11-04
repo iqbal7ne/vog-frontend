@@ -6,7 +6,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { columns } from "./columns";
-import { Problem, ProblemTableProps } from "@/interface/vog";
+import {
+  MyProblem,
+  MyProblemTableProps,
+  Problem,
+  ProblemTableProps,
+} from "@/interface/vog";
 import {
   Table,
   TableBody,
@@ -18,9 +23,9 @@ import {
 import { EditProblemModal } from "./edit-modal";
 import { useState } from "react";
 
-export function ProblemTable({ data, token }: ProblemTableProps) {
+export function MyProblemTable({ data, token }: MyProblemTableProps) {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Problem | null>(null);
+  const [selected, setSelected] = useState<MyProblem | null>(null);
 
   const table = useReactTable({
     data,
@@ -39,13 +44,6 @@ export function ProblemTable({ data, token }: ProblemTableProps) {
   // };
   return (
     <>
-      <EditProblemModal
-        open={open}
-        onOpenChange={setOpen}
-        problem={selected}
-        token={token}
-      />
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>

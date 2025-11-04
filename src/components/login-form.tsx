@@ -19,12 +19,11 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import { Popover } from "./ui/popover";
 import { PopoverForgotPassword } from "./forgot-password";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
@@ -35,6 +34,7 @@ export function LoginForm({
   const [error, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     console.log("NIK:", NIK);
@@ -75,62 +75,70 @@ export function LoginForm({
 
     if (result && result.error) {
       // Fallback jika NextAuth tetap mengembalikan error code
-      console.error("Login error (NextAuth):", result.error);
-      setErrorMessage("Login gagal");
+      // console.error("Login error (NextAuth):", result.error);
+      // setErrorMessage("Login gagal");
+      toast.error("Login gagal");
       return;
     }
-
+    toast.success("Login successful");
     router.push("/dashboard");
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="NIK">NIK</FieldLabel>
-              <Input
-                id="NIK"
-                type="text"
-                placeholder="12XXXXX"
-                onChange={(e) => setNIK(e.target.value)}
-                required
-              />
-            </Field>
-            <Field>
-              <div className="flex items-center justify-between">
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <PopoverForgotPassword />
-                {/* <a
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session]);
+  if (status === "loading") return <p className="p-6">Loading...</p>;
+  if (!session)
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Login to your account</CardTitle>
+          <CardDescription>
+            Enter your email below to login to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="NIK">NIK</FieldLabel>
+                <Input
+                  id="NIK"
+                  type="text"
+                  placeholder="12XXXXX"
+                  onChange={(e) => setNIK(e.target.value)}
+                  required
+                />
+              </Field>
+              <Field>
+                <div className="flex items-center justify-between">
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <PopoverForgotPassword />
+                  {/* <a
                   href="#"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
                 </a> */}
-              </div>
-              <Input
-                id="password"
-                type="password"
-                onChange={(e) => setPASSWORD(e.target.value)}
-                required
-              />
-            </Field>
-            <Field>
-              <Button type="submit">Login</Button>
-              <FieldDescription className="text-center">
-                Don&apos;t have an account? <a href="#">ask to admin</a>
-              </FieldDescription>
-            </Field>
-          </FieldGroup>
-        </form>
-      </CardContent>
-    </Card>
-  );
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  onChange={(e) => setPASSWORD(e.target.value)}
+                  required
+                />
+              </Field>
+              <Field>
+                <Button type="submit">Login</Button>
+                <FieldDescription className="text-center">
+                  Don&apos;t have an account? <a href="#">ask to admin</a>
+                </FieldDescription>
+              </Field>
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
+    );
 }

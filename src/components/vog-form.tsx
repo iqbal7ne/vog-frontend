@@ -29,6 +29,7 @@ import axios from "axios";
 import { Spinner } from "./ui/spinner";
 import { debounce } from "@/helper/debounce";
 import { FcCheckmark, FcCancel } from "react-icons/fc";
+import { toast } from "sonner";
 
 export function VogForm() {
   // initial state untuk cek queryparam
@@ -43,8 +44,6 @@ export function VogForm() {
   const [isAreaValid, setIsAreaValid] = useState<boolean | null>();
   //state tambahan untuk menyimpan nama area berdasarkan section_id
   const [areaName, setAreaName] = useState<string>("");
-  //state untuk menyimpan status success kirim ke BE
-  const [status, setStatus] = useState<string>("");
 
   // react hook form initialization
   const form = useForm<vogForm>({
@@ -167,7 +166,7 @@ export function VogForm() {
       `http://192.168.100.75:8002/api/app/vog/problem`,
       data
     );
-    setStatus("submit success");
+    toast.success("Response submitted successfully");
 
     form.reset(); //reset form
   };
@@ -257,7 +256,6 @@ export function VogForm() {
             >
               {form.formState.isSubmitting ? "Mengirim..." : "Kirim"}
             </Button>
-            {status && <p className="text-green-400 italic">{status}</p>}
           </form>
         </Form>
       </CardContent>

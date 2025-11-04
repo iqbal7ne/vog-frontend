@@ -40,3 +40,23 @@ export type Problem = {
   STATUS: boolean;
   SECTION_ID: string;
 };
+export type MyProblem = {
+  PROBLEM_ID: number;
+  PROBLEM: string;
+  NIK: string;
+  SECTION_ID: string;
+  RESPONSE_BY: string | null;
+  RESPONSE: string | null;
+  STATUS: boolean;
+  CREATED_DATE: string;
+  LAST_UPDATED: string;
+};
+
+export interface ProblemTableProps {
+  data: Problem[];
+  token?: string;
+}
+export interface MyProblemTableProps {
+  data: MyProblem[];
+  token?: string;
+}

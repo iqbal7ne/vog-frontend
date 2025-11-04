@@ -1,28 +1,17 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Employee, Problem } from "@/interface/vog";
+import { Employee, MyProblem, Problem } from "@/interface/vog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "../ui/badge";
 import { Textarea } from "../ui/textarea";
 
 export const columns = (
-  onEdit: (problem: Problem) => void
-): ColumnDef<Problem>[] => [
+  onEdit: (problem: MyProblem) => void
+): ColumnDef<MyProblem>[] => [
   {
-    accessorKey: "CREATED_DATE",
-    header: "CREATED_DATE",
-    cell: ({ row }) =>
-      new Date(row.original.CREATED_DATE).toLocaleString("en-ID"), //sebenarnya ini percuma, karena hanya memunculkan nilai biasa tanpa dirubah
-  },
-  {
-    accessorKey: "NIK",
-    header: "NIK",
-  },
-  {
-    accessorKey: "EMP_NAME",
-    header: "Employee Name",
-    cell: (info) => info.getValue(), //sebenarnya ini percuma, karena hanya memunculkan nilai biasa tanpa dirubah
+    accessorKey: "PROBLEM_ID",
+    header: "PROBLEM_ID",
   },
   {
     accessorKey: "PROBLEM",
@@ -59,14 +48,5 @@ export const columns = (
   {
     accessorKey: "RESPONSE",
     header: "Response",
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <Button variant="outline" size="sm" onClick={() => onEdit(row.original)}>
-        Response
-      </Button>
-    ),
   },
 ];

@@ -1,50 +1,45 @@
-import { EmployeeTable } from "@/components/employee/table";
-import { Employee } from "@/interface/vog";
+"use client";
 
-const data: Employee[] = [
-  {
-    NIK: "1211024",
-    EMP_NAME: "Asep Arif Nurahman",
-    EMP_EMAIL: null,
-    PHONE: null,
-    PASSWORD: "$2b$10$InfDvnFcJmFeROWxFWUNkemftfSbYC39CVE4SReA5MH5iDZPtwjke",
-    JOIN_DATE: "2012-10-31T17:00:00.000Z",
-    END_DATE: null,
-    TITLE: null,
-    LAST_UPDATED: "2025-10-02T07:52:57.621Z",
-    UPDATED_BY: null,
-  },
-  {
-    NIK: "1208007",
-    EMP_NAME: "ARIS PURBOWO",
-    EMP_EMAIL: null,
-    PHONE: null,
-    PASSWORD: "$2b$10$BxMajNSKUVpj.614m3xDRuD4u.64vif1B6zKiyI9gx8duEbyk/xEy",
-    JOIN_DATE: "2012-08-11T17:00:00.000Z",
-    END_DATE: null,
-    TITLE: null,
-    LAST_UPDATED: "2025-10-02T07:52:57.626Z",
-    UPDATED_BY: null,
-  },
-  {
-    NIK: "1301043",
-    EMP_NAME: "TANTI HERLINA",
-    EMP_EMAIL: null,
-    PHONE: null,
-    PASSWORD: "$2b$10$SiQmYKfGXJRwAZzkkd/gSeFEyzAXqgcAVMD7s4NIPqBsGDDMr8nyi",
-    JOIN_DATE: "2013-01-01T17:00:00.000Z",
-    END_DATE: null,
-    TITLE: "Staff",
-    LAST_UPDATED: "2025-10-02T07:52:57.665Z",
-    UPDATED_BY: null,
-  },
-];
+import { MyProblemTable } from "@/components/myproblem/table";
+import { ProblemTable } from "@/components/problem/table";
+import { useMyPost } from "@/hooks/useProblems";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function EmployeesPage() {
+export default function MyPostPage() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const token = session?.accessToken;
+  const { data, isLoading, isError, refetch } = useMyPost();
+
+  // 🔥 Redirect ke login kalau belum login
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/"); // asumsi halaman login di "/"
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return <p className="p-6">Memeriksa sesi...</p>;
+  }
+  if (!token) return null; // biar tidak render sisa konten sementara
+  if (isLoading) return <p className="p-6">Loading data...</p>;
+  if (isError) return <p className="p-6 text-red-500">Gagal memuat data.</p>;
+
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Page my post</h1>
-      <EmployeeTable data={data} />
+      <h1 className="text-2xl font-semibold mb-4">My Post Problem</h1>
+      <MyProblemTable data={data ?? []} token={token} />
+      <button
+        onClick={async () => {
+          const res = refetch({ cancelRefetch: false });
+          console.log("manual refetch result:", res);
+        }}
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Refresh Data
+      </button>
     </div>
   );
 }

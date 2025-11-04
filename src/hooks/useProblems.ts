@@ -10,11 +10,14 @@ export function useProblems() {
   return useQuery<Problem[]>({
     queryKey: ["problems"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:8002/api/app/vog/problem", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/app/vog/problem`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return res.data?.data ?? res.data;
     },
     enabled: !!token, // hanya fetch kalau sudah login & token ada
@@ -28,11 +31,14 @@ export function useMyPost() {
   return useQuery<Problem[]>({
     queryKey: ["mypost"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:8002/api/app/vog/problem", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/app/vog/myproblem`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return res.data?.data ?? res.data;
     },
     enabled: !!token, // hanya fetch kalau sudah login & token ada
