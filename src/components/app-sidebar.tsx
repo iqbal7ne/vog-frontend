@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSession } from "next-auth/react";
 import {
   BookOpen,
   Bot,
@@ -12,6 +13,7 @@ import {
   Send,
   Settings2,
   SquareTerminal,
+  User,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -50,6 +52,12 @@ const data = {
           url: "/dashboard/section-post",
         },
       ],
+    },
+    {
+      title: "Profile",
+      url: "/profile",
+      icon: User,
+      isActive: false,
     },
     // {
     //   title: "Models",
@@ -149,6 +157,33 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
+  const userTitle = (session as any)?.user?.title;
+  const user = session?.user;
+
+  // Filter menu items based on user role
+  const allowedTitles = ["manager", "supervisor", "staff"];
+  const filteredNavMain = {
+    ...data,
+    navMain: data.navMain.map((item) => ({
+      ...item,
+      items: item.items?.filter((subItem) => {
+        // Only show section-post to manager, supervisor, or staff
+        if (subItem.url.includes("section-post")) {
+          return userTitle && allowedTitles.includes(userTitle.toLowerCase());
+        }
+        return true;
+      }),
+    })),
+  };
+
+  // Use session user data if available, otherwise fallback to default
+  const userData = {
+    name: user?.name || data.user.name,
+    email: user?.email || data.user.email,
+    avatar: data.user.avatar,
+  };
+
   return (
     <Sidebar
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
@@ -172,12 +207,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={filteredNavMain.navMain} />
         {/* <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

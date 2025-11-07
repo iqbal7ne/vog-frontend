@@ -10,19 +10,31 @@ export default function ProblemPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const token = session?.accessToken;
+  const userTitle = (session as any)?.user?.title;
   const { data, isLoading, isError, refetch } = useProblems();
 
-  // 🔥 Redirect ke login kalau belum login
+  // 🔥 Redirect ke login kalau belum login atau bukan manager/supervisor/staff
+  const allowedTitles = ["manager", "supervisor", "staff"];
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/"); // asumsi halaman login di "/"
     }
-  }, [status, router]);
+    // Redirect users yang bukan manager/supervisor/staff ke dashboard
+    if (
+      status === "authenticated" &&
+      userTitle &&
+      !allowedTitles.includes(userTitle.toLowerCase())
+    ) {
+      router.replace("/dashboard");
+    }
+  }, [status, router, userTitle]);
 
   if (status === "loading") {
     return <p className="p-6">Memeriksa sesi...</p>;
   }
   if (!token) return null; // biar tidak render sisa konten sementara
+  if (userTitle && !allowedTitles.includes(userTitle.toLowerCase()))
+    return null; // prevent flash of content for non-authorized users
   if (isLoading) return <p className="p-6">Loading data...</p>;
   if (isError) return <p className="p-6 text-red-500">Gagal memuat data.</p>;
 
